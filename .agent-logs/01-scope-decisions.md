@@ -1,6 +1,7 @@
 # Phase 1 — Scope Decisions
 
 Written: 2026-09-17T17:11Z (before any feature code)
+Revised: 2026-09-17T18:31Z — **Video-first**: Higgsfield is primarily known as an AI video generator. Swapped video to primary mode, image secondary. MockProvider returns placeholder .mp4 URL instead of .png — near-zero extra cost. Also: defer Supabase Storage, use hardcoded placeholder URLs until real API is wired.
 
 ## What we're building, in priority order
 
@@ -8,10 +9,10 @@ Written: 2026-09-17T17:11Z (before any feature code)
 
 **Prompt → Generate → See result → Gallery**
 
-1. **Image generation page** (`/`) — prompt input bar, model selector dropdown, aspect ratio picker, Generate button with credit cost
-2. **Mock generation provider** — simulated 3-5 second delay, returns a placeholder AI-generated image. Entire loop works end-to-end before touching any real API
-3. **Gallery page** (`/gallery`) — grid of user's past generations, newest first, with status badges (generating / completed / failed)
-4. **Generation detail page** (`/generations/:id`) — full result view with download button, prompt text, timestamp, model used
+1. **Generation page** (`/`) — prompt input bar, **video/image mode toggle** (video default), model selector, aspect ratio picker, Generate button with credit cost
+2. **Mock generation provider** — simulated 3-5 second delay, returns a hardcoded placeholder URL (.mp4 for video, .png for image). No Supabase Storage upload in mock phase. Entire loop works end-to-end before touching any real API
+3. **Gallery page** (`/gallery`) — grid of user's past generations, newest first, with status badges (generating / completed / failed), video thumbnails play on hover
+4. **Generation detail page** (`/generations/:id`) — full result view with video player or image display, download button, prompt text, timestamp, model used
 5. **Loading states** — visible spinner/progress on the generation page while "generating"
 
 ### P1 — Supporting system: Auth + persistence (required for core loop to work)
