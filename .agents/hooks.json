@@ -1,0 +1,11 @@
+{
+  "capture-log": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node scripts/capture-log.js",
+        "timeout": 15
+      }
+    ]
+  }
+}
