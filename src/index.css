@@ -310,14 +310,18 @@ body {
   gap: 12px;
 }
 
-.model-placeholder-thumb {
+.model-thumb {
   width: 40px;
   height: 40px;
-  background: #2a2a2e;
+  background: #1a1a1e;
+  border: 1px solid #2a2a2e;
   border-radius: 8px;
-  background-image: linear-gradient(45deg, #1a1a1e 25%, transparent 25%, transparent 75%, #1a1a1e 75%, #1a1a1e), linear-gradient(45deg, #1a1a1e 25%, transparent 25%, transparent 75%, #1a1a1e 75%, #1a1a1e);
-  background-size: 10px 10px;
-  background-position: 0 0, 5px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #d4ff00;
 }
 
 .model-preset-text {

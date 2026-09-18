@@ -115,9 +115,9 @@ function GenerationPage() {
 
   useEffect(() => {
     if (user && tab === 'history') {
-      fetchGenerations().then(setHistory).catch(console.error);
+      fetchGenerations().then(gens => setHistory(gens.filter(g => g.mode === mode))).catch(console.error);
     }
-  }, [user, tab, result]);
+  }, [user, tab, result, mode]);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
@@ -165,7 +165,7 @@ function GenerationPage() {
           {/* Model Preset Card */}
           <div className="model-preset-card">
             <div className="model-preset-info">
-              <div className="model-placeholder-thumb" />
+              <div className="model-thumb">{(currentModel?.name ?? 'M').charAt(0)}</div>
               <div className="model-preset-text">
                 <span className="model-preset-label">Model</span>
                 <span className="model-preset-name">{currentModel?.name ?? selectedModel}</span>
