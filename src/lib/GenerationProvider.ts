@@ -130,7 +130,7 @@ export class SupabaseProvider {
         const img = new Image();
         const timeout = setTimeout(() => {
           reject(new Error('Image generation timed out'));
-        }, 20000); // 20s timeout
+        }, 60000); // 60s timeout
         
         img.onload = () => {
           clearTimeout(timeout);
