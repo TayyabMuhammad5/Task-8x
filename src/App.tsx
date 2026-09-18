@@ -92,7 +92,7 @@ function AppShell({ children, navigate, activeTab }: {
 function GenerationPage() {
   const { user, credits, refreshCredits } = useAuth();
   const [prompt, setPrompt] = useState('');
-  const [mode] = useState<GenerationMode>('video');
+  const [mode, setMode] = useState<GenerationMode>('video');
   const [selectedModel, setSelectedModel] = useState('seedance-2.5');
   const [aspectRatio] = useState<AspectRatio>('16:9');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -104,16 +104,11 @@ function GenerationPage() {
   const [tab, setTab] = useState<'history' | 'how'>('history');
   const [history, setHistory] = useState<GenerationResult[]>([]);
 
-  // Filter models by current mode
-  const availableModels = AI_MODELS.filter((m) => m.type === mode);
+  const availableModels = AI_MODELS;
   const currentModel = AI_MODELS.find((m) => m.id === selectedModel);
   const creditCost = currentModel?.creditCost ?? 45;
 
-  // When mode changes, pick the first model of that type
-  useEffect(() => {
-    const firstModel = AI_MODELS.find((m) => m.type === mode);
-    if (firstModel) setSelectedModel(firstModel.id);
-  }, [mode]);
+
 
   useEffect(() => {
     if (user && tab === 'history') {
@@ -164,7 +159,11 @@ function GenerationPage() {
                 <button
                   key={m.id}
                   className={`model-option ${m.id === selectedModel ? 'model-option-active' : ''}`}
-                  onClick={() => { setSelectedModel(m.id); setShowModelDropdown(false); }}
+                  onClick={() => { 
+                    setSelectedModel(m.id); 
+                    setMode(m.type);
+                    setShowModelDropdown(false); 
+                  }}
                 >
                   <span>{m.name}</span>
                   <span className="model-option-cost">⚡{m.creditCost}</span>

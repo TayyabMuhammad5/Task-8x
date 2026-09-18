@@ -349,6 +349,42 @@ body {
   margin-bottom: 8px;
 }
 
+.model-dropdown {
+  background: #141418;
+  border: 1px solid #2a2a2e;
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 50;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.model-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.model-option:hover { background: #1a1a1e; }
+.model-option-active { background: #1a1a1e; color: #d4ff00; }
+.model-option-cost { margin-left: auto; color: #888; font-size: 12px; }
+
+.model-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.model-badge-top { background: #d4ff00; color: #0a0a0c; }
+.model-badge-new { background: #ff3377; color: #fff; }
+
 .gen-section { display: flex; flex-direction: column; gap: 8px; }
 .gen-section-grow { flex: 1; }
 
