@@ -124,7 +124,7 @@ export class SupabaseProvider {
   private simulateGeneration(mode: GenerationMode, prompt: string): Promise<string> {
     if (mode === 'image') {
       const seed = Math.floor(Math.random() * 1000000);
-      const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
+      const url = `https://image.pollinations.ai/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
       
       return new Promise((resolve, reject) => {
         const img = new Image();
