@@ -22,12 +22,8 @@ export interface GenerationConfig {
   aspectRatio: AspectRatio;
 }
 
-/** Returns a randomized placeholder URL — different each time */
+/** Returns a randomized placeholder URL for videos */
 function getPlaceholderUrl(mode: GenerationMode): string {
-  if (mode === 'image') {
-    const seed = Math.floor(Math.random() * 100000);
-    return `https://picsum.photos/seed/${seed}/800/600`;
-  }
   // Rotate through placeholder videos
   const idx = Math.floor(Math.random() * PLACEHOLDER_VIDEOS.length);
   return PLACEHOLDER_VIDEOS[idx];
@@ -77,8 +73,18 @@ export class SupabaseProvider {
       throw new Error(insertError?.message ?? 'Failed to create generation');
     }
 
-    // Phase 2: Simulate generation delay, then update to completed
-    const resultUrl = await this.simulateGeneration(mode);
+    // Phase 2: Wait for generation (real for image, mock for video)
+    let resultUrl: string;
+    try {
+      resultUrl = await this.simulateGeneration(mode, prompt);
+    } catch (err) {
+      // Mark as failed if generation times out or fails
+      await supabase
+        .from('generations')
+        .update({ status: 'failed' as GenerationStatus })
+        .eq('id', pendingRow.id);
+      throw err;
+    }
 
     const { data: completedRow, error: updateError } = await supabase
       .from('generations')
@@ -91,12 +97,11 @@ export class SupabaseProvider {
       .single();
 
     if (updateError || !completedRow) {
-      // Mark as failed if update fails
       await supabase
         .from('generations')
         .update({ status: 'failed' as GenerationStatus })
         .eq('id', pendingRow.id);
-      throw new Error('Failed to complete generation');
+      throw new Error('Failed to save completed generation');
     }
 
     return completedRow as GenerationResult;
@@ -116,7 +121,32 @@ export class SupabaseProvider {
     return costs[modelId] ?? 45;
   }
 
-  private simulateGeneration(mode: GenerationMode): Promise<string> {
+  private simulateGeneration(mode: GenerationMode, prompt: string): Promise<string> {
+    if (mode === 'image') {
+      const seed = Math.floor(Math.random() * 1000000);
+      const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
+      
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const timeout = setTimeout(() => {
+          reject(new Error('Image generation timed out'));
+        }, 20000); // 20s timeout
+        
+        img.onload = () => {
+          clearTimeout(timeout);
+          resolve(url);
+        };
+        
+        img.onerror = () => {
+          clearTimeout(timeout);
+          reject(new Error('Image generation failed'));
+        };
+        
+        img.src = url;
+      });
+    }
+
+    // Video path remains the same mock
     return new Promise((resolve) => {
       const delay = 2000 + Math.random() * 3000; // 2-5 seconds
       setTimeout(() => {
