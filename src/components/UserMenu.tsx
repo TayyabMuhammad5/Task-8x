@@ -2,9 +2,10 @@ import { useAuth } from '../lib/AuthContext';
 
 interface UserMenuProps {
   onLoginClick: () => void;
+  onSignupClick: () => void;
 }
 
-export function UserMenu({ onLoginClick }: UserMenuProps) {
+export function UserMenu({ onLoginClick, onSignupClick }: UserMenuProps) {
   const { user, credits, loading, signOut } = useAuth();
 
   if (loading) {
@@ -15,7 +16,7 @@ export function UserMenu({ onLoginClick }: UserMenuProps) {
     return (
       <div className="user-menu">
         <button className="btn-ghost" onClick={onLoginClick}>Log in</button>
-        <button className="btn-primary" onClick={onLoginClick}>Sign up</button>
+        <button className="btn-primary" onClick={onSignupClick}>Sign up</button>
       </div>
     );
   }

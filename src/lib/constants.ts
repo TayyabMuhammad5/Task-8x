@@ -25,8 +25,6 @@ export const DEFAULT_CREDITS = 50;
 /** Placeholder video URLs — public domain / free stock */
 export const PLACEHOLDER_VIDEOS = [
   'https://www.w3schools.com/html/mov_bbb.mp4',
+  'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4',
   'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
 ];

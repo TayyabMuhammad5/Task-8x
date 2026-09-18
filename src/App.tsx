@@ -42,7 +42,7 @@ function AppShell({ children, navigate, activeTab }: {
   navigate: (hash: string) => void;
   activeTab: 'create' | 'gallery';
 }) {
-  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup' | null>(null);
 
   return (
     <>
@@ -65,14 +65,22 @@ function AppShell({ children, navigate, activeTab }: {
             Gallery
           </button>
         </div>
-        <UserMenu onLoginClick={() => setShowAuth(true)} />
+        <UserMenu 
+          onLoginClick={() => setAuthMode('signin')} 
+          onSignupClick={() => setAuthMode('signup')} 
+        />
       </nav>
 
       <main className="main-content">
         {children}
       </main>
 
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+      {authMode && (
+        <AuthModal 
+          initialMode={authMode} 
+          onClose={() => setAuthMode(null)} 
+        />
+      )}
     </>
   );
 }
@@ -86,7 +94,7 @@ function GenerationPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState('');
-  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup' | null>(null);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
 
   // Filter models by current mode
@@ -104,7 +112,7 @@ function GenerationPage() {
     if (!prompt.trim()) return;
 
     if (!user) {
-      setShowAuth(true);
+      setAuthMode('signin');
       return;
     }
 
@@ -278,7 +286,12 @@ function GenerationPage() {
         </div>
       </div>
 
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+      {authMode && (
+        <AuthModal 
+          initialMode={authMode} 
+          onClose={() => setAuthMode(null)} 
+        />
+      )}
     </div>
   );
 }
