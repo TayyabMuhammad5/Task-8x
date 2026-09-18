@@ -22,9 +22,9 @@ export type AspectRatio = typeof ASPECT_RATIOS[number];
 
 export const DEFAULT_CREDITS = 50;
 
-/** Placeholder video URLs — public domain / free stock */
+/** Placeholder video URLs — explicitly public domain and allow CORS/embedding */
 export const PLACEHOLDER_VIDEOS = [
-  'https://www.w3schools.com/html/mov_bbb.mp4',
-  'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4',
-  'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4',
+  'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm',
+  'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4',
+  'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
 ];
