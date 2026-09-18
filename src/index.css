@@ -700,7 +700,30 @@ body {
   padding: 48px 24px;
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
   animation: fadeIn 0.4s ease-out;
+}
+
+.hero-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  background: #d4ff00;
+  filter: blur(120px);
+  border-radius: 50%;
+  opacity: 0.15;
+  z-index: -1;
+  animation: float-pulse 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes float-pulse {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.1; }
+  50% { transform: translate(-50%, -60%) scale(1.1); opacity: 0.2; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0.1; }
 }
 
 .hero-title {

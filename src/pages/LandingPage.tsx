@@ -27,6 +27,7 @@ export function LandingPage({ onNavigate }: { onNavigate: (hash: string) => void
       </nav>
 
       <main className="hero-container">
+        <div className="hero-glow"></div>
         <h1 className="hero-title">Endless new visions.<br/>One upload in.</h1>
         <p className="hero-subtitle">
           Create stunning videos and images with state-of-the-art AI models. Build games, motion graphics, and interactive experiences with Higgsfield.
