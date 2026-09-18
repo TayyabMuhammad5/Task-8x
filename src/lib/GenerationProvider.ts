@@ -23,7 +23,7 @@ export interface GenerationConfig {
 }
 
 /** Returns a randomized placeholder URL for videos */
-function getPlaceholderUrl(mode: GenerationMode): string {
+function getPlaceholderUrl(): string {
   // Rotate through placeholder videos
   const idx = Math.floor(Math.random() * PLACEHOLDER_VIDEOS.length);
   return PLACEHOLDER_VIDEOS[idx];
@@ -150,7 +150,7 @@ export class SupabaseProvider {
     return new Promise((resolve) => {
       const delay = 2000 + Math.random() * 3000; // 2-5 seconds
       setTimeout(() => {
-        resolve(getPlaceholderUrl(mode));
+        resolve(getPlaceholderUrl());
       }, delay);
     });
   }
