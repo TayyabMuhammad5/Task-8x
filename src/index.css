@@ -349,6 +349,23 @@ body {
   margin-bottom: 8px;
 }
 
+/* Mode toggle */
+.mode-toggle { display: flex; background: #0a0a0c; border-radius: 10px; padding: 3px; margin-bottom: 12px; }
+.mode-btn {
+  flex: 1;
+  padding: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mode-btn:hover { color: #ccc; }
+.mode-btn-active { background: #1a1a1e; color: #fff; }
+
 .model-dropdown {
   background: #141418;
   border: 1px solid #2a2a2e;
