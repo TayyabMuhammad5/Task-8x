@@ -5,6 +5,16 @@ interface GalleryPageProps {
   onNavigate: (route: string) => void;
 }
 
+function getRelativeTime(dateString: string) {
+  const diff = Date.now() - new Date(dateString).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
 export function GalleryPage({ onNavigate }: GalleryPageProps) {
   const [generations, setGenerations] = useState<GenerationResult[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,9 +64,10 @@ export function GalleryPage({ onNavigate }: GalleryPageProps) {
     return (
       <div className="gallery-page">
         <h2 className="page-title">Your Generations</h2>
-        <div className="gallery-empty">
+        <div className="gallery-empty-state">
           <span className="gallery-empty-icon">✦</span>
-          <p>No generations yet</p>
+          <h3>No generations yet</h3>
+          <p>Create your first video or image to see it here.</p>
           <button className="btn-primary" onClick={() => onNavigate('#/create')}>
             Start Creating ✦
           </button>
@@ -102,18 +113,19 @@ export function GalleryPage({ onNavigate }: GalleryPageProps) {
               ) : null}
 
               <div className="gallery-card-badge">
-                <span className={`status-badge status-${gen.status}`}>
-                  {gen.status}
-                </span>
+                {gen.status === 'completed' && <span className="status-badge status-completed">✓ Completed</span>}
+                {gen.status === 'failed' && <span className="status-badge status-failed">⚠ Failed</span>}
               </div>
             </div>
 
             <div className="gallery-card-info">
-              <p className="gallery-card-prompt">{gen.prompt}</p>
+              <p className="gallery-card-prompt">
+                {gen.prompt.length > 60 ? gen.prompt.slice(0, 60) + '...' : gen.prompt}
+              </p>
               <div className="gallery-card-meta">
                 <span className="gallery-card-model">{gen.model}</span>
                 <span className="gallery-card-mode">{gen.mode === 'video' ? '🎬' : '🖼'}</span>
-                <span className="gallery-card-cost">⚡{gen.credit_cost}</span>
+                <span className="gallery-card-time">{getRelativeTime(gen.created_at)}</span>
               </div>
             </div>
           </button>
