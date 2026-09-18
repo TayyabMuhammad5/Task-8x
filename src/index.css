@@ -273,7 +273,6 @@ body {
   margin: 0 auto;
   animation: fadeIn 0.3s ease-out;
   height: calc(100vh - 56px);
-  overflow: hidden;
 }
 
 .gen-layout {
@@ -413,6 +412,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .gen-prompt {
