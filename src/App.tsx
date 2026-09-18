@@ -6,6 +6,7 @@ import { AuthModal } from './components/AuthModal';
 import { UserMenu } from './components/UserMenu';
 import { GalleryPage } from './pages/GalleryPage';
 import { GenerationDetailPage } from './pages/GenerationDetailPage';
+import { LandingPage } from './pages/LandingPage';
 
 function Router() {
   const [route, setRoute] = useState(window.location.hash || '#/');
@@ -26,6 +27,9 @@ function Router() {
   if (route === '#/gallery') {
     return <AppShell navigate={navigate} activeTab="gallery"><GalleryPage onNavigate={navigate} /></AppShell>;
   }
+  if (route === '#/create') {
+    return <AppShell navigate={navigate} activeTab="create"><GenerationPage /></AppShell>;
+  }
   if (generationMatch) {
     return (
       <AppShell navigate={navigate} activeTab="gallery">
@@ -33,8 +37,8 @@ function Router() {
       </AppShell>
     );
   }
-  // Default: generation page
-  return <AppShell navigate={navigate} activeTab="create"><GenerationPage /></AppShell>;
+  // Default: landing page
+  return <LandingPage onNavigate={navigate} />;
 }
 
 function AppShell({ children, navigate, activeTab }: {
@@ -54,7 +58,7 @@ function AppShell({ children, navigate, activeTab }: {
         <div className="nav-links">
           <button
             className={`nav-link ${activeTab === 'create' ? 'nav-link-active' : ''}`}
-            onClick={() => navigate('#/')}
+            onClick={() => navigate('#/create')}
           >
             Create
           </button>

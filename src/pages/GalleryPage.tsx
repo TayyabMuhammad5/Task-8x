@@ -57,8 +57,8 @@ export function GalleryPage({ onNavigate }: GalleryPageProps) {
         <div className="gallery-empty">
           <span className="gallery-empty-icon">✦</span>
           <p>No generations yet</p>
-          <button className="btn-primary" onClick={() => onNavigate('#/')}>
-            Create your first one
+          <button className="btn-primary" onClick={() => onNavigate('#/create')}>
+            Start Creating ✦
           </button>
         </div>
       </div>
