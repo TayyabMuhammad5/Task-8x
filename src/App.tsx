@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AuthProvider, useAuth } from './lib/AuthContext';
-import { provider, type GenerationMode, type GenerationResult } from './lib/GenerationProvider';
-import { AI_MODELS, ASPECT_RATIOS, type AspectRatio } from './lib/constants';
+import { provider, fetchGenerations, type GenerationMode, type GenerationResult } from './lib/GenerationProvider';
+import { AI_MODELS, type AspectRatio } from './lib/constants';
 import { AuthModal } from './components/AuthModal';
 import { UserMenu } from './components/UserMenu';
 import { GalleryPage } from './pages/GalleryPage';
@@ -92,14 +92,17 @@ function AppShell({ children, navigate, activeTab }: {
 function GenerationPage() {
   const { user, credits, refreshCredits } = useAuth();
   const [prompt, setPrompt] = useState('');
-  const [mode, setMode] = useState<GenerationMode>('video');
+  const [mode] = useState<GenerationMode>('video');
   const [selectedModel, setSelectedModel] = useState('seedance-2.5');
-  const [aspectRatio, setAspectRatio] = useState<AspectRatio>('16:9');
+  const [aspectRatio] = useState<AspectRatio>('16:9');
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState('');
   const [authMode, setAuthMode] = useState<'signin' | 'signup' | null>(null);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
+  
+  const [tab, setTab] = useState<'history' | 'how'>('history');
+  const [history, setHistory] = useState<GenerationResult[]>([]);
 
   // Filter models by current mode
   const availableModels = AI_MODELS.filter((m) => m.type === mode);
@@ -112,28 +115,23 @@ function GenerationPage() {
     if (firstModel) setSelectedModel(firstModel.id);
   }, [mode]);
 
+  useEffect(() => {
+    if (user && tab === 'history') {
+      fetchGenerations().then(setHistory).catch(console.error);
+    }
+  }, [user, tab, result]);
+
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
-
-    if (!user) {
-      setAuthMode('signin');
-      return;
-    }
-
-    if (credits < creditCost) {
-      setError('Insufficient credits');
-      return;
-    }
+    if (!user) { setAuthMode('signin'); return; }
+    if (credits < creditCost) { setError('Insufficient credits'); return; }
 
     setIsGenerating(true);
     setResult(null);
     setError('');
 
     try {
-      const res = await provider.generate(prompt, mode, user.id, {
-        model: selectedModel,
-        aspectRatio,
-      });
+      const res = await provider.generate(prompt, mode, user.id, { model: selectedModel, aspectRatio });
       setResult(res);
       await refreshCredits();
     } catch (err) {
@@ -146,156 +144,122 @@ function GenerationPage() {
   return (
     <div className="gen-page">
       <div className="gen-layout">
-        {/* Controls Panel */}
-        <div className="gen-controls">
-          {/* Mode Toggle */}
-          <div className="gen-section">
-            <label className="gen-label">Mode</label>
-            <div className="mode-toggle">
-              <button
-                onClick={() => setMode('video')}
-                className={`mode-btn ${mode === 'video' ? 'mode-btn-active' : ''}`}
-              >
-                🎬 Video
-              </button>
-              <button
-                onClick={() => setMode('image')}
-                className={`mode-btn ${mode === 'image' ? 'mode-btn-active' : ''}`}
-              >
-                🖼 Image
-              </button>
+        {/* Left Sidebar */}
+        <div className="gen-sidebar">
+          {/* Model Preset Card */}
+          <div className="model-preset-card">
+            <div className="model-preset-info">
+              <div className="model-placeholder-thumb" />
+              <div className="model-preset-text">
+                <span className="model-preset-label">Model</span>
+                <span className="model-preset-name">{currentModel?.name ?? selectedModel}</span>
+              </div>
             </div>
+            <button className="btn-ghost btn-small" onClick={() => setShowModelDropdown(!showModelDropdown)}>Change</button>
           </div>
-
-          {/* Model Selector */}
-          <div className="gen-section">
-            <label className="gen-label">Model</label>
-            <div className="model-selector">
-              <button
-                className="model-selected"
-                onClick={() => setShowModelDropdown(!showModelDropdown)}
-              >
-                <span>{currentModel?.name ?? selectedModel}</span>
-                {currentModel?.badge && (
-                  <span className={`model-badge model-badge-${currentModel.badge.toLowerCase()}`}>
-                    {currentModel.badge}
-                  </span>
-                )}
-                <span className="model-arrow">▾</span>
-              </button>
-              {showModelDropdown && (
-                <div className="model-dropdown">
-                  {availableModels.map((m) => (
-                    <button
-                      key={m.id}
-                      className={`model-option ${m.id === selectedModel ? 'model-option-active' : ''}`}
-                      onClick={() => { setSelectedModel(m.id); setShowModelDropdown(false); }}
-                    >
-                      <span>{m.name}</span>
-                      {m.badge && (
-                        <span className={`model-badge model-badge-${m.badge.toLowerCase()}`}>
-                          {m.badge}
-                        </span>
-                      )}
-                      <span className="model-option-cost">⚡{m.creditCost}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Aspect Ratio */}
-          <div className="gen-section">
-            <label className="gen-label">Aspect Ratio</label>
-            <div className="pill-group">
-              {ASPECT_RATIOS.map((ratio) => (
+          
+          {showModelDropdown && (
+            <div className="model-dropdown sidebar-dropdown">
+              {availableModels.map((m) => (
                 <button
-                  key={ratio}
-                  className={`pill ${aspectRatio === ratio ? 'pill-active' : ''}`}
-                  onClick={() => setAspectRatio(ratio)}
+                  key={m.id}
+                  className={`model-option ${m.id === selectedModel ? 'model-option-active' : ''}`}
+                  onClick={() => { setSelectedModel(m.id); setShowModelDropdown(false); }}
                 >
-                  {ratio}
+                  <span>{m.name}</span>
+                  <span className="model-option-cost">⚡{m.creditCost}</span>
                 </button>
               ))}
             </div>
-          </div>
+          )}
 
           {/* Prompt */}
           <div className="gen-section gen-section-grow">
-            <label className="gen-label">Prompt</label>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder={mode === 'video'
-                ? 'Describe the visual change you want — e.g., "Make it snow" or "Add dramatic lighting"'
-                : 'Describe the scene you imagine...'}
+              placeholder="Describe the visual change you want..."
               className="gen-prompt"
             />
           </div>
 
-          {/* Error */}
           {error && <div className="gen-error">{error}</div>}
 
-          {/* Generate Button */}
-          <button
-            onClick={handleGenerate}
-            disabled={isGenerating || !prompt.trim()}
-            className="gen-button"
-          >
-            {isGenerating ? (
-              <>
-                <span className="auth-spinner" />
-                Generating...
-              </>
-            ) : (
-              <>Generate ✦ {creditCost}</>
-            )}
+          {/* Generate Button at bottom */}
+          <button onClick={handleGenerate} disabled={isGenerating || !prompt.trim()} className="gen-button gen-button-full">
+            {isGenerating ? <><span className="auth-spinner" /> Generating...</> : <>Generate ✦ {creditCost}</>}
           </button>
         </div>
 
-        {/* Result Panel */}
-        <div className="gen-canvas">
-          {!isGenerating && !result && (
-            <div className="gen-canvas-empty">
-              <span className="gen-canvas-icon">✦</span>
-              <p>Ready to generate</p>
-              <p className="gen-canvas-hint">
-                {user
-                  ? 'Enter a prompt and click Generate'
-                  : 'Sign in to start creating'}
-              </p>
-            </div>
-          )}
-
-          {isGenerating && (
-            <div className="gen-canvas-loading">
-              <div className="gen-loading-pulse" />
-              <p>Creating your vision...</p>
-            </div>
-          )}
-
-          {result && result.status === 'completed' && result.result_url && (
-            <div className="gen-canvas-result">
-              {result.mode === 'video' ? (
-                <video src={result.result_url} controls autoPlay loop className="gen-result-media" />
-              ) : (
-                <img src={result.result_url} alt={result.prompt} className="gen-result-media" />
-              )}
-              <div className="gen-result-overlay">
-                <span className="gen-result-prompt">{result.prompt}</span>
+        {/* Right Main Area */}
+        <div className="gen-main-area">
+          <div className="gen-canvas">
+            {!isGenerating && !result && (
+              <div className="gen-canvas-empty">
+                <span className="gen-canvas-icon">✦</span>
+                <p>Ready to generate</p>
+                <p className="gen-canvas-hint">
+                  {user ? 'Enter a prompt and click Generate' : 'Sign in to start creating'}
+                </p>
               </div>
+            )}
+            {isGenerating && (
+              <div className="gen-canvas-loading">
+                <div className="gen-loading-pulse" />
+                <p>Creating your vision...</p>
+              </div>
+            )}
+            {result && result.status === 'completed' && result.result_url && (
+              <div className="gen-canvas-result">
+                {result.mode === 'video' ? (
+                  <video src={result.result_url} controls autoPlay loop className="gen-result-media" />
+                ) : (
+                  <img src={result.result_url} alt={result.prompt} className="gen-result-media" />
+                )}
+                <div className="gen-result-overlay">
+                  <span className="gen-result-prompt">{result.prompt}</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="gen-tabs-container">
+            <div className="gen-tabs">
+              <button className={`gen-tab ${tab === 'history' ? 'active' : ''}`} onClick={() => setTab('history')}>History</button>
+              <button className={`gen-tab ${tab === 'how' ? 'active' : ''}`} onClick={() => setTab('how')}>How it works</button>
             </div>
-          )}
+            
+            <div className="gen-tab-content">
+              {tab === 'history' && (
+                <div className="gen-history-grid">
+                  {history.length === 0 && <p className="history-empty">No generations yet.</p>}
+                  {history.map(gen => (
+                    <div key={gen.id} className="history-card">
+                      <div className="history-thumb-wrapper">
+                        {gen.result_url ? (
+                          gen.mode === 'video' ? <video src={gen.result_url} /> : <img src={gen.result_url} />
+                        ) : <div className="history-placeholder" />}
+                        <span className={`status-badge status-${gen.status}`}>{gen.status}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {tab === 'how' && (
+                <div className="how-steps">
+                  <div className="how-step"><span className="how-icon">✏️</span><p>Add Prompt</p></div>
+                  <div className="how-divider" />
+                  <div className="how-step"><span className="how-icon">🧠</span><p>Choose Model</p></div>
+                  <div className="how-divider" />
+                  <div className="how-step"><span className="how-icon">🎬</span><p>Get Video</p></div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {authMode && (
-        <AuthModal 
-          initialMode={authMode} 
-          onClose={() => setAuthMode(null)} 
-        />
-      )}
+      {authMode && <AuthModal initialMode={authMode} onClose={() => setAuthMode(null)} />}
     </div>
   );
 }
