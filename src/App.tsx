@@ -104,11 +104,14 @@ function GenerationPage() {
   const [tab, setTab] = useState<'history' | 'how'>('history');
   const [history, setHistory] = useState<GenerationResult[]>([]);
 
-  const availableModels = AI_MODELS;
+  const availableModels = AI_MODELS.filter((m) => m.type === mode);
   const currentModel = AI_MODELS.find((m) => m.id === selectedModel);
   const creditCost = currentModel?.creditCost ?? 45;
 
-
+  useEffect(() => {
+    const firstModel = AI_MODELS.find((m) => m.type === mode);
+    if (firstModel) setSelectedModel(firstModel.id);
+  }, [mode]);
 
   useEffect(() => {
     if (user && tab === 'history') {
@@ -141,6 +144,24 @@ function GenerationPage() {
       <div className="gen-layout">
         {/* Left Sidebar */}
         <div className="gen-sidebar">
+          {/* Mode Toggle */}
+          <div className="gen-section">
+            <div className="mode-toggle">
+              <button
+                onClick={() => setMode('video')}
+                className={`mode-btn ${mode === 'video' ? 'mode-btn-active' : ''}`}
+              >
+                🎬 Video
+              </button>
+              <button
+                onClick={() => setMode('image')}
+                className={`mode-btn ${mode === 'image' ? 'mode-btn-active' : ''}`}
+              >
+                🖼 Image
+              </button>
+            </div>
+          </div>
+
           {/* Model Preset Card */}
           <div className="model-preset-card">
             <div className="model-preset-info">
@@ -161,7 +182,6 @@ function GenerationPage() {
                   className={`model-option ${m.id === selectedModel ? 'model-option-active' : ''}`}
                   onClick={() => { 
                     setSelectedModel(m.id); 
-                    setMode(m.type);
                     setShowModelDropdown(false); 
                   }}
                 >
