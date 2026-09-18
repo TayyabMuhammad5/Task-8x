@@ -1,6 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-higgs-black: #0a0a0a;
+  --color-higgs-green: #d4ff00;
+  --color-higgs-gray: #1a1a1a;
+}
 
 body {
   background-color: #0a0a0a;
