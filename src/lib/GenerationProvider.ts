@@ -76,7 +76,7 @@ export class SupabaseProvider {
     // Phase 2: Wait for generation (real for image, mock for video)
     let resultUrl: string;
     try {
-      resultUrl = await this.simulateGeneration(mode, prompt);
+      resultUrl = await this.simulateGeneration(mode, prompt, config.model);
     } catch (err) {
       // Mark as failed if generation times out or fails
       await supabase
@@ -121,16 +121,24 @@ export class SupabaseProvider {
     return costs[modelId] ?? 45;
   }
 
-  private simulateGeneration(mode: GenerationMode, prompt: string): Promise<string> {
+  private simulateGeneration(mode: GenerationMode, prompt: string, modelId: string): Promise<string> {
     if (mode === 'image') {
+      // Map our model IDs to Pollinations model parameter
+      const pollinationsModel: Record<string, string> = {
+        'gpt-image-2': 'flux',
+        'nano-banana-pro': 'flux-realism',
+        'dall-e-3': 'flux-anime',
+      };
+      const model = pollinationsModel[modelId] ?? 'flux';
       const seed = Math.floor(Math.random() * 1000000);
-      const url = `https://image.pollinations.ai/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
+      const url = `https://image.pollinations.ai/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=${model}`;
       
       return new Promise((resolve, reject) => {
         const img = new Image();
         const timeout = setTimeout(() => {
-          reject(new Error('Image generation timed out'));
-        }, 60000); // 60s timeout
+          img.src = ''; // cancel the load
+          reject(new Error('Image generation timed out. Please try again.'));
+        }, 90000); // 90s timeout — Pollinations can be slow
         
         img.onload = () => {
           clearTimeout(timeout);
@@ -139,7 +147,7 @@ export class SupabaseProvider {
         
         img.onerror = () => {
           clearTimeout(timeout);
-          reject(new Error('Image generation failed'));
+          reject(new Error('Image generation failed. Please try again.'));
         };
         
         img.src = url;
